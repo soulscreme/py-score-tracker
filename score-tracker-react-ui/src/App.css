@@ -2,7 +2,6 @@
   text-align: center;
   font-size: calc(10px + 2vmin);
   color: #80ff00;
-  background-color: #000000;
   height: 100%;
 }
 
@@ -28,13 +27,11 @@ tr.header-row {
   color: black;
 }
 
-
-
 tr {
   max-height: 5px;
 }
 
-div {
+div:not(.public):not(.public-inner):not(.rw-combobox):not(.rw-number-picker):not(.rw-widget-container):not(.rw-popup-container):not(.rw-popup):not(.rw-list):not(.rw-list-option) {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -43,6 +40,50 @@ div {
   width: 100%;
   height: 100%;
   background-color: #000000;
+}
+
+.rw-widget-container {
+  font-family: Lucida Console,Lucida Sans Typewriter,monaco,Bitstream Vera Sans Mono,monospace;
+}
+
+.console-font {
+  font-family: Lucida Console,Lucida Sans Typewriter,monaco,Bitstream Vera Sans Mono,monospace;
+}
+
+.style-button {
+  height: 1.4em;
+  font-size: 1.5em;
+  width: 100%;
+  font-family: Lucida Console,Lucida Sans Typewriter,monaco,Bitstream Vera Sans Mono,monospace;
+}
+
+tr.highlight-row:hover {
+   background-color: rgba(255, 255, 255, .5);
+}
+
+a {
+  color: black;
+  text-decoration: none;
+}
+
+
+div.public {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+}
+
+div.default-bg {
+  background-image: url('images/purple_nebula_1.png');
+}
+
+div.public-inner {
+  margin: 50px;
+  background-color: transparent;
 }
 
 table {

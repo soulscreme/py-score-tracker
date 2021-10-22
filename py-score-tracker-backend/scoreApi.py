@@ -30,13 +30,18 @@ def all_scores():
 @app.route("/api/v1/score/<game>/top/<number>")
 def game_scores(game, number):
     dbScores = Query()
-    matchingScores = sorted(db.search(dbScores.game.test(cleanNameMatch, game)), key = lambda i: i['score'], reverse=True)
+    matchingScores = sorted(db.search(dbScores.game.test(cleanNameMatch, game)), key = lambda i: int(i['score']), reverse=True)
     
     return jsonify(matchingScores)
 
 @app.route("/api/v1/score/<game>/delete", methods=['DELETE'])
 def delete_score(game):
     dbScores = Query()
+    print("Game: " + game)
+    print("Args: ")
+    print(request.args)
+    print("Name: " + request.args.get('name'))
+    print("Score: " + request.args.get('score'))
     remove = db.remove(dbScores.game.test(cleanNameMatch, game) & (dbScores.name == request.args.get('name')) & (dbScores.score == int(request.args.get('score'))))
 
     status_code = Response(status=201)
@@ -89,7 +94,7 @@ def upload_game_image(game):
         if 'image' in rs[0]:
             return send_file("./image_uploads/" + rs[0]['image'])
         else:
-            status_code = Response(status=201)
+            status_code = Response(status=404)
             return status_code
     
 

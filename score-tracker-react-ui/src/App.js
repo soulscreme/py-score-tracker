@@ -8,7 +8,10 @@ import {
   useParams
 } from "react-router-dom";
 
+import "react-widgets/styles.css";
 import './App.css';
+import Combobox from "react-widgets/Combobox"
+import NumberPicker from "react-widgets/NumberPicker";
 
 function App() {
   return (
@@ -25,6 +28,9 @@ function App() {
           </Route>
           <Route path="/edit/:game">
             <EditGame />
+          </Route>
+          <Route path="/public_post">
+            <PublicPost />
           </Route>
         </Switch>
       </div>
@@ -71,7 +77,6 @@ function Display() {
 
     fetch('/api/v1/score/all').then(res => res.json()).then(data => {
       setSingleGameAreas(data.map((game) => {
-        console.log("Setting background for " + game.game)
         return (<div game={game.game} className="main {game.game}"><table><tr className="header-row"><th colspan="2" className="title">{game.game}</th></tr><tr className="header-row"><th>Player</th><th>Score</th></tr>{game['scores'].map((score) => <tr><td>{score.name}</td><td>{score.score}</td></tr>)}</table></div>)
       }))
     })
@@ -99,25 +104,102 @@ function Display() {
 
 function Admin() {
   const [topScores, setTopScores] = useState(0)
+  const [games, setGames] = useState(0)
+  const [game, setGame] = useState(0)
+  const [score, setScore] = useState(0)
+  const [name, setName] = useState(0)
+
+  function refreshData() {
+    fetch('/api/v1/score/all/top').then(res => res.json()).then(data => {
+      setTopScores(data.map((score) => <tr style={{fontSize: '1.5em'}} className="highlight-row"><td colspan="4"><a href={"/edit/" + score.game}>{score.game}</a></td></tr>))
+      setGames(data.map((score) => score.game))
+    });
+  }
 
   useEffect(() => {
-    fetch('/api/v1/score/all/top').then(res => res.json()).then(data => {
-      setTopScores(data.map((score) => <tr><td><a href={"/edit/" + score.game}>{score.game}</a></td></tr>))
-    })
+    refreshData();
   }, ['URL'])
+
+  const addScore = () => {
+    fetch('/api/v1/score', 
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        'name': name,
+        'score': score,
+        'game': game
+      }),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    }).then((res) => {
+          refreshData();
+    });
+  }
 
   return (
     <div id="scoreDisplay">
-      <div className="main all-games">
+      <div className="main all-games default-bg">
           <table>
             <tr className="header-row">
-              <th className="title">Games</th>
+              <th colspan="4" className="title">Games</th>
             </tr>
             {topScores}
+            <tr>
+              <td><Combobox style={{fontSize: '1em'}} onChange={value => setGame(value)} data={games} placeholder="Search for a game."></Combobox></td>
+              <td><Combobox style={{fontSize: '1em'}} id="playerNameInput" onChange={value => setName(value)} hideCaret hideEmptyPopup placeholder="Player name."></Combobox></td>
+              <td><NumberPicker id="scoreInput" onChange={value => setScore(value)} placeholder="Player score."></NumberPicker></td>          
+              <td><button className="style-button" onClick={addScore}>Add</button></td>
+            </tr>
           </table>
       </div>
     </div>
   );
+}
+
+function PublicPost() {
+  const [games, setGames] = useState(0)
+  const [game, setGame] = useState()
+  const [name, setName] = useState()
+  const [score, setScore] = useState()
+
+
+  useEffect(() => {
+    fetch('/api/v1/score/all/top').then(res => res.json()).then(data => {
+      setGames(data.map((score) => score.game))
+    })
+  }, [])
+
+  const addScore = () => {
+    fetch('/api/v1/score', 
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        'name': name,
+        'score': score,
+        'game': game
+      }),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    }).then((res) => {
+          window.location.href = '/display'
+    });
+  }
+
+  return(<div className="public default-bg">
+    <div className="public-inner">
+      <Combobox onChange={value => setGame(value)} data={games} placeholder="Search for a game."></Combobox>
+      <br/>
+      <Combobox onChange={value => setName(value)} hideCaret hideEmptyPopup placeholder="Player name."></Combobox>
+      <br/>
+      <NumberPicker onChange={value => setScore(value)} placeholder="Your score."></NumberPicker>
+      <br/>
+      <button className="style-button" onClick={addScore}>ADD SCORE</button>
+    </div>
+  </div>)
 }
 
 function EditGame() {
@@ -125,16 +207,20 @@ function EditGame() {
   
   const [scores, setScores] = useState(0)
   const [selectedFile, setSelectedFile] = useState();
+  const [name, setName] = useState()
+  const [score, setScore] = useState()
 
-  const refreshData = () => {
+  function refreshData() {
     fetch('/api/v1/score/' + game + '/top/100').then(res => res.json()).then(data => {
-      setScores(data.map((score) => <tr><td width="5%"><button game={game} name={score.name} score={score.score} onClick={deleteScore}>Delete</button></td><td>{score.name}</td><td>{score.score}</td></tr>))
+      setScores(data.map((score) => <tr style={{fontSize: '1.5em'}}><td width="5%"><button className="style-button" game={game} name={score.name} score={score.score} onClick={deleteScore}>Delete</button></td><td style={{width: '10%'}}>{score.name}</td><td>{score.score}</td></tr>))
     }).catch((error) => {
       console.error('Error:', error);
     });
   }
 
-  refreshData();
+  useEffect(() => {
+    refreshData();
+  }, []);
 
   const changeHandler = (event) => {
     setSelectedFile(event.target.files[0]);
@@ -168,7 +254,7 @@ function EditGame() {
         method: 'DELETE'
       })
 
-    refreshData();
+    window.location.reload();
   }
 
   const addScore = () => {
@@ -176,15 +262,20 @@ function EditGame() {
     {
       method: 'POST',
       body: JSON.stringify({
-        'name': document.getElementById("playerNameInput").value,
-        'score': document.getElementById("scoreInput").value,
+        'name': name,
+        'score': score,
         'game': game
-      })
+      }),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    }).then((res) => {
+          window.location.reload();
     });
-    refreshData();
   }
 
-  return (<div>
+  return (<div className="default-bg console-font">
     <table>
       <tr>
       <td colspan="3"><a href="/admin">&lt;&lt; Back</a></td>
@@ -207,9 +298,9 @@ function EditGame() {
       </tr>
       {scores}
       <tr>
-        <td><button onClick={addScore}>Add</button></td>
-        <td><input id="playerNameInput"></input></td>
-        <td><input id="scoreInput"></input></td>
+        <td><button onClick={addScore} className="style-button">Add</button></td>
+        <td><Combobox id="playerNameInput" onChange={value => setName(value)} hideCaret hideEmptyPopup placeholder="Player name."></Combobox></td>
+        <td><NumberPicker id="scoreInput" onChange={value => setScore(value)} placeholder="Player score."></NumberPicker></td>
       </tr>
     </table>
   </div>)
