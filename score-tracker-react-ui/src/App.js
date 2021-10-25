@@ -44,13 +44,26 @@ function Display() {
 
   var currentlyDisplayed = 0;
 
+  function refreshData() {
+    fetch('/api/v1/score/all/top').then(res => res.json()).then(data => {
+      setTopScores(data.map((score) => <tr><td>{score.game}</td><td>{score.name}</td><td>{score.score}</td></tr>))
+    })
+
+    fetch('/api/v1/score/all').then(res => res.json()).then(data => {
+      setSingleGameAreas(data.map((game) => {
+        return (<div game={game.game} className="main {game.game}"><table><tr className="header-row"><th colspan="2" className="title">{game.game}</th></tr><tr className="header-row"><th>Player</th><th>Score</th></tr>{game['scores'].map((score) => <tr><td>{score.name}</td><td>{score.score}</td></tr>)}</table></div>)
+      }))
+    })
+  }
+
   function flipDisplay() {
+    console.log("Flipping display...")
     var mainPanels = document.getElementsByClassName("main")
 
     for (var i = 0; i < mainPanels.length; i++) {
       if (i == currentlyDisplayed) {
        mainPanels[i].style.display = "block"
-       mainPanels[i].style.backgroundImage = "url('/api/v1/image/" + mainPanels[i].getAttribute("game") + "')"
+       mainPanels[i].style.backgroundImage = "url('http://" + window.location.hostname + ":5000/api/v1/image/" + mainPanels[i].getAttribute("game") + "')"
        mainPanels[i].style.backgroundSize = "cover"
        mainPanels[i].style.backgroundRepeat = "no-repeat"
       } else {
@@ -61,25 +74,16 @@ function Display() {
     currentlyDisplayed++
 
     if (currentlyDisplayed >= mainPanels.length) {
+      refreshData()
       currentlyDisplayed = 0
     }
 
     setTimeout(flipDisplay.bind(), 5000)
   }
 
-  setTimeout(flipDisplay.bind(), 500)
-
-
   useEffect(() => {
-    fetch('/api/v1/score/all/top').then(res => res.json()).then(data => {
-      setTopScores(data.map((score) => <tr><td>{score.game}</td><td>{score.name}</td><td>{score.score}</td></tr>))
-    })
-
-    fetch('/api/v1/score/all').then(res => res.json()).then(data => {
-      setSingleGameAreas(data.map((game) => {
-        return (<div game={game.game} className="main {game.game}"><table><tr className="header-row"><th colspan="2" className="title">{game.game}</th></tr><tr className="header-row"><th>Player</th><th>Score</th></tr>{game['scores'].map((score) => <tr><td>{score.name}</td><td>{score.score}</td></tr>)}</table></div>)
-      }))
-    })
+    refreshData();
+    setTimeout(flipDisplay.bind(), 5000)
   }, ['URL'])
 
   return (
@@ -110,7 +114,7 @@ function Admin() {
   const [name, setName] = useState(0)
 
   function refreshData() {
-    fetch('/api/v1/score/all/top').then(res => res.json()).then(data => {
+    fetch('http://' + window.location.hostname + ':5000/api/v1/score/all/top').then(res => res.json()).then(data => {
       setTopScores(data.map((score) => <tr style={{fontSize: '1.5em'}} className="highlight-row"><td colspan="4"><a href={"/edit/" + score.game}>{score.game}</a></td></tr>))
       setGames(data.map((score) => score.game))
     });
@@ -121,7 +125,7 @@ function Admin() {
   }, ['URL'])
 
   const addScore = () => {
-    fetch('/api/v1/score', 
+    fetch('http://' + window.location.hostname + ':5000/api/v1/score', 
     {
       method: 'POST',
       body: JSON.stringify({
@@ -166,13 +170,13 @@ function PublicPost() {
 
 
   useEffect(() => {
-    fetch('/api/v1/score/all/top').then(res => res.json()).then(data => {
+    fetch('http://'+window.location.hostname+':5000/api/v1/score/all/top').then(res => res.json()).then(data => {
       setGames(data.map((score) => score.game))
     })
   }, [])
 
   const addScore = () => {
-    fetch('/api/v1/score', 
+    fetch('http://' + window.location.hostname + ':5000/api/v1/score', 
     {
       method: 'POST',
       body: JSON.stringify({
@@ -211,7 +215,7 @@ function EditGame() {
   const [score, setScore] = useState()
 
   function refreshData() {
-    fetch('/api/v1/score/' + game + '/top/100').then(res => res.json()).then(data => {
+    fetch('http://' + window.location.hostname + ':5000/api/v1/score/' + game + '/top/100').then(res => res.json()).then(data => {
       setScores(data.map((score) => <tr style={{fontSize: '1.5em'}}><td width="5%"><button className="style-button" game={game} name={score.name} score={score.score} onClick={deleteScore}>Delete</button></td><td style={{width: '10%'}}>{score.name}</td><td>{score.score}</td></tr>))
     }).catch((error) => {
       console.error('Error:', error);
@@ -233,7 +237,7 @@ function EditGame() {
     console.log("Uploading file...")
 
     fetch(
-      '/api/v1/image/' + game,
+      'http://' + window.location.hostname + ':5000/api/v1/image/' + game,
       {
         method: 'POST',
         body: formData,
@@ -249,7 +253,7 @@ function EditGame() {
   };
 
   const deleteScore = (event) => {
-    fetch('/api/v1/score/' + event.target.getAttribute("game") + '/delete?name=' + event.target.getAttribute("name") + '&score=' + event.target.getAttribute("score"),
+    fetch('http://' + window.location.hostname + ':5000/api/v1/score/' + event.target.getAttribute("game") + '/delete?name=' + event.target.getAttribute("name") + '&score=' + event.target.getAttribute("score"),
       {
         method: 'DELETE'
       })
@@ -258,7 +262,7 @@ function EditGame() {
   }
 
   const addScore = () => {
-    fetch('/api/v1/score', 
+    fetch('http://' + window.location.hostname + ':5000/api/v1/score', 
     {
       method: 'POST',
       body: JSON.stringify({

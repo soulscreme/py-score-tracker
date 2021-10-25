@@ -1,14 +1,18 @@
 from flask import Flask, Response, request, jsonify, send_file
+from flask_cors import CORS, cross_origin
 from tinydb import TinyDB, Query
 from werkzeug.utils import secure_filename
 import re
 
 app = Flask(__name__)
+cors = CORS(app)
 db = TinyDB('score_database.json')
 
 app.config['UPLOAD_FOLDER'] = "/images"
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 @app.route("/api/v1/score/all/top")
+@cross_origin()
 def all_scores():
     topScores = {}
     for item in db:
@@ -28,6 +32,7 @@ def all_scores():
     return jsonify(topScoreList)
 
 @app.route("/api/v1/score/<game>/top/<number>")
+@cross_origin()
 def game_scores(game, number):
     dbScores = Query()
     matchingScores = sorted(db.search(dbScores.game.test(cleanNameMatch, game)), key = lambda i: int(i['score']), reverse=True)
@@ -35,6 +40,7 @@ def game_scores(game, number):
     return jsonify(matchingScores)
 
 @app.route("/api/v1/score/<game>/delete", methods=['DELETE'])
+@cross_origin()
 def delete_score(game):
     dbScores = Query()
     print("Game: " + game)
@@ -48,6 +54,7 @@ def delete_score(game):
     return status_code
 
 @app.route("/api/v1/score/all")
+@cross_origin()
 def all_games_all_scores():
     topScores = {}
     for item in db:
@@ -66,6 +73,7 @@ def all_games_all_scores():
     return jsonify(topScoreList)
 
 @app.route("/api/v1/games")
+@cross_origin()
 def list_games():
     uniqueGames = set()
     for item in db:
@@ -74,6 +82,7 @@ def list_games():
     return jsonify(sorted(uniqueGames))
 
 @app.route("/api/v1/image/<game>", methods = ['POST', 'GET'])
+@cross_origin()
 def upload_game_image(game):
     gameQuery = Query()
     
@@ -91,7 +100,7 @@ def upload_game_image(game):
     else:
         rs = db.search(gameQuery.game.test(cleanNameMatch, game))
 
-        if 'image' in rs[0]:
+        if (len(rs) > 0) and ('image' in rs[0]):
             return send_file("./image_uploads/" + rs[0]['image'])
         else:
             status_code = Response(status=404)
@@ -99,6 +108,7 @@ def upload_game_image(game):
     
 
 @app.route("/api/v1/score", methods = ['POST'])
+@cross_origin()
 def post_score():
     db.insert(request.json)
     status_code = Response(status=201)
