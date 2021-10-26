@@ -115,7 +115,7 @@ function Admin() {
 
   function refreshData() {
     fetch('http://' + window.location.hostname + ':5000/api/v1/score/all/top').then(res => res.json()).then(data => {
-      setTopScores(data.map((score) => <tr style={{fontSize: '1.5em'}} className="highlight-row"><td colspan="4"><a href={"/edit/" + score.game}>{score.game}</a></td></tr>))
+      setTopScores(data.map((score) => <tr style={{fontSize: '1.5em'}} className="highlight-row"><td colspan="4"><a href={"/#/edit/" + score.game}>{score.game}</a></td></tr>))
       setGames(data.map((score) => score.game))
     });
   }
@@ -189,7 +189,7 @@ function PublicPost() {
         'Content-Type': 'application/json'
       }
     }).then((res) => {
-          window.location.href = '/display'
+          window.location.href = '/#/display'
     });
   }
 
@@ -282,7 +282,7 @@ function EditGame() {
   return (<div className="default-bg console-font">
     <table>
       <tr>
-      <td colspan="3"><a href="/admin">&lt;&lt; Back</a></td>
+      <td colspan="3"><a href="/#/admin">&lt;&lt; Back</a></td>
       </tr>
       <tr className="header-row">
         <td colspan="3">{game}</td>
