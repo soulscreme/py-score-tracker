@@ -45,11 +45,11 @@ function Display() {
   var currentlyDisplayed = 0;
 
   function refreshData() {
-    fetch('/api/v1/score/all/top').then(res => res.json()).then(data => {
+    fetch('http://' + window.location.hostname + '/api/v1/score/all/top').then(res => res.json()).then(data => {
       setTopScores(data.map((score) => <tr><td>{score.game}</td><td>{score.name}</td><td>{score.score}</td></tr>))
     })
 
-    fetch('/api/v1/score/all').then(res => res.json()).then(data => {
+    fetch('http://' + window.location.hostname + '/api/v1/score/all').then(res => res.json()).then(data => {
       setSingleGameAreas(data.map((game) => {
         return (<div game={game.game} className="main {game.game}"><table><tr className="header-row"><th colspan="2" className="title">{game.game}</th></tr><tr className="header-row"><th>Player</th><th>Score</th></tr>{game['scores'].map((score) => <tr><td>{score.name}</td><td>{score.score}</td></tr>)}</table></div>)
       }))
@@ -114,7 +114,7 @@ function Admin() {
   const [name, setName] = useState(0)
 
   function refreshData() {
-    fetch('http://' + window.location.hostname + ':5000/api/v1/score/all/top').then(res => res.json()).then(data => {
+    fetch('http://' + window.location.hostname + 'http://' + window.location.hostname + ':5000/api/v1/score/all/top').then(res => res.json()).then(data => {
       setTopScores(data.map((score) => <tr style={{fontSize: '1.5em'}} className="highlight-row"><td colspan="4"><a href={"/edit/" + score.game}>{score.game}</a></td></tr>))
       setGames(data.map((score) => score.game))
     });
@@ -125,7 +125,7 @@ function Admin() {
   }, ['URL'])
 
   const addScore = () => {
-    fetch('http://' + window.location.hostname + ':5000/api/v1/score', 
+    fetch('http://' + window.location.hostname + 'http://' + window.location.hostname + ':5000/api/v1/score', 
     {
       method: 'POST',
       body: JSON.stringify({
@@ -170,13 +170,13 @@ function PublicPost() {
 
 
   useEffect(() => {
-    fetch('http://'+window.location.hostname+':5000/api/v1/score/all/top').then(res => res.json()).then(data => {
+    fetch('http://' + window.location.hostname + 'http://'+window.location.hostname+':5000/api/v1/score/all/top').then(res => res.json()).then(data => {
       setGames(data.map((score) => score.game))
     })
   }, [])
 
   const addScore = () => {
-    fetch('http://' + window.location.hostname + ':5000/api/v1/score', 
+    fetch('http://' + window.location.hostname + 'http://' + window.location.hostname + ':5000/api/v1/score', 
     {
       method: 'POST',
       body: JSON.stringify({
@@ -215,7 +215,7 @@ function EditGame() {
   const [score, setScore] = useState()
 
   function refreshData() {
-    fetch('http://' + window.location.hostname + ':5000/api/v1/score/' + game + '/top/100').then(res => res.json()).then(data => {
+    fetch('http://' + window.location.hostname + 'http://' + window.location.hostname + ':5000/api/v1/score/' + game + '/top/100').then(res => res.json()).then(data => {
       setScores(data.map((score) => <tr style={{fontSize: '1.5em'}}><td width="5%"><button className="style-button" game={game} name={score.name} score={score.score} onClick={deleteScore}>Delete</button></td><td style={{width: '10%'}}>{score.name}</td><td>{score.score}</td></tr>))
     }).catch((error) => {
       console.error('Error:', error);
@@ -253,7 +253,7 @@ function EditGame() {
   };
 
   const deleteScore = (event) => {
-    fetch('http://' + window.location.hostname + ':5000/api/v1/score/' + event.target.getAttribute("game") + '/delete?name=' + event.target.getAttribute("name") + '&score=' + event.target.getAttribute("score"),
+    fetch('http://' + window.location.hostname + 'http://' + window.location.hostname + ':5000/api/v1/score/' + event.target.getAttribute("game") + '/delete?name=' + event.target.getAttribute("name") + '&score=' + event.target.getAttribute("score"),
       {
         method: 'DELETE'
       })
@@ -262,7 +262,7 @@ function EditGame() {
   }
 
   const addScore = () => {
-    fetch('http://' + window.location.hostname + ':5000/api/v1/score', 
+    fetch('http://' + window.location.hostname + 'http://' + window.location.hostname + ':5000/api/v1/score', 
     {
       method: 'POST',
       body: JSON.stringify({
