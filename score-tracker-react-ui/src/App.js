@@ -170,7 +170,7 @@ function PublicPost() {
 
 
   useEffect(() => {
-    fetch('http://' + window.location.hostname + ':5000http://'+window.location.hostname+':5000/api/v1/score/all/top').then(res => res.json()).then(data => {
+    fetch('http://' + window.location.hostname + ':5000/api/v1/score/all/top').then(res => res.json()).then(data => {
       setGames(data.map((score) => score.game))
     })
   }, [])
