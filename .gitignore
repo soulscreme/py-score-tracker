@@ -1,2 +1,7 @@
 py-score-tracker-backend/score_database.json
 py-score-tracker-backend/__pycache__
+py-score-tracker-backend/backend.log.txt
+py-score-tracker-backend/image_uploads/
+py-score-tracker-backend/log.txt
+score-tracker-react-ui/frontend.log.txt
+score-tracker-react-ui/log.txt

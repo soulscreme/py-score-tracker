@@ -164,9 +164,9 @@ function Admin() {
 
 function PublicPost() {
   const [games, setGames] = useState(0)
-  const [game, setGame] = useState()
-  const [name, setName] = useState()
-  const [score, setScore] = useState()
+  const [game, setGame] = useState(0)
+  const [name, setName] = useState(0)
+  const [score, setScore] = useState(0)
 
 
   useEffect(() => {
